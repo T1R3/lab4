@@ -81,55 +81,57 @@ void DFSstack(struct stack* stk, int s, int* G, int* num) {
 	num[s] = 1;
 	printf("%d ", s);
 	push(stk, s);
+	push(stk, s);
 
 	while (stk->top != 0) {
-		for (i; i < N; i++) {
+		if (i == N) s = pop(stk);
+
+		for (i = 0; i < N; i++) {
 			if (G[N * s + i] == 1 && num[i] == 0) {
 				num[i] = 1;
 				printf("%d ", i);
+				if (stk->top != N)
 					push(stk, i);
-					
-			}
-			if (i == N) {
-				s = pop(stk);
+				s = i;
+				break;
 			}
 		}
+		
 	}
 }
 
-typedef struct Node {
+typedef struct Spisok {
 	int value;
-	struct Node* next;
-}Spisok;
+	struct Spisok* next;
+}smej;
 
-Spisok* create(int name)
-{
+smej* create(int num) {
 	// Выделение памяти под корень списка
-	Spisok* tmp = (Spisok*)malloc(sizeof(Spisok));
+	smej* tmp = new smej;
 	// Присваивание имя вершине
-	tmp->value = name;
+	tmp->value = num;
 	// Присваивание указателю на следующий элемент значения NULL
 	tmp->next = NULL;
 	return(tmp);
 }
-void addElem(int data, Spisok* head) {
+void addElem(int data, smej* head) {
 	// Выделение памяти под корень списка
-	Spisok* tmp = (Spisok*)malloc(sizeof(Spisok));
+	smej* tmp = new smej;
 	// Присваивание значения узлу
 	tmp->value = data;
 	// Присваивание указателю на следующий элемент значения NULL
 	tmp->next = NULL;
 	// Присваивание новому указателю указателя head. 
 	// Присваивание выполняется для того, чтобы не потерять указатель на «голову» списка
-	Spisok* p = head;
+	smej* p = head;
 	// Сдвиг указателя p в самый конец первоначального списка
 	while (p->next != NULL)
 		p = p->next;
 	// Присваивание указателю p -> next значения указателя tmp (созданный новый узел)
 	p->next = tmp;
 }
-void print(Spisok* head) {
-	Spisok* s = head;
+void print(smej* head) {
+	smej* s = head;
 	if (s != NULL) {					//номер вершины
 		printf("%d:  ", s->value);			
 		s = s->next;
@@ -142,9 +144,10 @@ void print(Spisok* head) {
 		s = s->next;
 	}
 }
-void spisokSmej(int(&Matrix)[N][N], Spisok* G_S[N]) {
+
+void spisokSmej(int(&Matrix)[N][N], smej* G_S[N]) {
 	for (int i = 0; i < N; i++) {
-		Node* tmp = create(i);
+		Spisok* tmp = create(i);
 		for (int j = 0; j < N; j++) {
 			if (Matrix[i][j] == 1)
 				addElem(j, tmp);
@@ -158,10 +161,10 @@ void spisokSmej(int(&Matrix)[N][N], Spisok* G_S[N]) {
 	printf("\n");
 }
 
-void DFSsp(Spisok* (&P)[N], int ver, int* num) {
+void DFSsp(smej* (&P)[N], int ver, int* num) {
 	num[ver] = 1;
 	printf("%d ", ver);
-	Spisok* s = P[ver];
+	smej* s = P[ver];
 	s = s->next;
 	while (s != NULL) {
 		if (num[s->value] == 0) {
@@ -200,13 +203,12 @@ void DFSsp(Spisok* (&P)[N], int ver, int* num) {
 //	printf("\n");
 //}
 
-
 int main() {
 	int G[N][N], num[N], s;
 	setlocale(LC_ALL, "rus");
 	struct stack* stk;
 	stk = new stack;
-	Spisok* G_S1[N];
+	Spisok* G_S[N];
 
 	newMat(&G[0][0]);
 	printMat(&G[0][0]);
@@ -215,7 +217,7 @@ int main() {
 		num[i] = 0;
 	}
 
-	printf("Введите номер вершины для начала обхода: ");
+	printf("\nВведите номер вершины для начала обхода: ");
 	scanf("%d", &s);
 	printf("Результат с рекурсией: ");
 	DFS(s, &G[0][0], &num[0]);
@@ -226,16 +228,15 @@ int main() {
 	}
 
 	printf("Представление графа в виде списка смежности: \n");
-	spisokSmej(G, G_S1);
+	spisokSmej(G, G_S);
 
 	printf("Введите номер вершины для начала обхода: ");
 	scanf("%d", &s);
-	DFSsp(G_S1, s, &num[0]);
+	DFSsp(G_S, s, &num[0]);
 
 	for (int i = 0; i < N; i++) {
 		num[i] = 0;
 	}
-
 
 	init(stk);
 	printf("\n\nВведите номер вершины для начала обхода: ");
@@ -243,9 +244,4 @@ int main() {
 	printf("Результат без рекурсии: ");
 	DFSstack(stk, s, &G[0][0], &num[0]);
 	printf("\n\n");
-
-
-
-
-
 }
